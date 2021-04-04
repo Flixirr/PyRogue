@@ -1,49 +1,54 @@
-#!/usr/bin/env python3
 import tcod
-from actions import Escape, Movement
+from engine import Engine
 from input_handler import EventHandler
 from entity import Entity
+from map_gen import generate_rooms
 
 def main() -> None:
     screen_width = 80
     screen_height = 50
+
+    map_width = 80
+    map_height = 45
+
+    room_max_size = 10
+    room_min_size = 6
+    max_rooms = 30
 
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
     event_handler = EventHandler()
-
     player = Entity(screen_width // 2, screen_height // 2, "P", (255, 255, 255))
+
+    game_map = generate_rooms(max_rooms=max_rooms,
+    room_min_size=room_min_size,
+    room_max_size=room_max_size,
+    map_width=map_width,
+    map_height=map_height,
+    player=player)
+
+    
     npc = Entity(screen_width // 2 - 5, screen_height // 2 - 5, "N", (255, 255, 0))
     entities = {npc, player}
+
+    engine = Engine(entities=entities, event_handler=event_handler, g_map=game_map, player=player)
 
     with tcod.context.new_terminal(
         screen_width,
         screen_height,
         tileset=tileset,
-        title="Yet Another Roguelike Tutorial",
+        title="PyRoque",
         vsync=True,
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F") #order=F sets numpy arrays access to [x,y]
         while True:
-            root_console.print(x=player.x, y=player.y, string=player.char, fg=player.color)
+            engine.render(console=root_console, context=context)
+
+            engine.handle_events(events=tcod.event.wait())
+
             
-            context.present(root_console)
-
-            root_console.clear()
-
-            for event in tcod.event.wait(): 
-                action = event_handler.dispatch(event)
-
-                if action is None:
-                    continue
-                
-                if isinstance(action, Movement):
-                    player.move(dx=action.dx, dy=action.dy)
-
-                elif isinstance(action, Escape):
-                    raise SystemExit()
 
 if __name__ == "__main__":
     main()#!/usr/bin/env python3

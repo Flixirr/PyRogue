@@ -23,7 +23,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action = Movement(dx=1, dy=0)
 
         elif key == tcod.event.K_ESCAPE:
-            action = EscapeAction()
+            action = Escape()
 
         # No valid key was pressed
         return action
