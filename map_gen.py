@@ -3,13 +3,15 @@ from __future__ import annotations
 import random
 from typing import Iterator, List, Tuple, TYPE_CHECKING
 
+import entities
+
 import tcod
 
 from maps import MainMap
 import tile_type
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from engine import Engine
 
 class RectRoom:
     def __init__(self, x: int, y: int, width: int, height: int):
@@ -50,6 +52,23 @@ def generate_tunnel(start: Tuple[int, int], end: Tuple[int, int]) -> Iterator[Tu
         yield x, y
     for x, y in tcod.los.bresenham((corner_x, corner_y), (x2, y2)).tolist():
         yield x, y
+
+def place_entities(
+    room: RectRoom,
+    dungeon: MainMap,
+    max_monsters: int
+) -> None:
+    monsters_num = random.randint(0, max_monsters)
+
+    for i in range(monsters_num):
+        x = random.randint(room.x1 + 1, room.x2 - 1)
+        y = random.randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            if random.random() < 0.8:
+                entities.rat.spawn(dungeon, x, y)
+            else:
+                entities.spider.spawn(dungeon, x, y)
     
 
 def generate_rooms(
@@ -58,11 +77,12 @@ def generate_rooms(
     room_max_size: int,
     map_width: int,
     map_height: int,
-    player: Entity
+    engine: Engine,
+    max_monsters: int
 ) -> MainMap:
     """Generate rooms for map"""
-
-    dungeon = MainMap(map_width, map_height)
+    player = engine.player
+    dungeon = MainMap(engine, map_width, map_height, entities=[player])
 
     rooms: List[RectRoom] = []
 
@@ -81,10 +101,12 @@ def generate_rooms(
         dungeon.tiles[create_room.inner] = tile_type.floor
 
         if len(rooms) == 0:
-            player.x, player.y = create_room.center
+            player.place(*create_room.center, dungeon)
         else:
             for x, y in generate_tunnel(rooms[-1].center, create_room.center):
                 dungeon.tiles[x, y] = tile_type.floor
+        
+        place_entities(create_room, dungeon, max_monsters)
         
         rooms.append(create_room)
 
