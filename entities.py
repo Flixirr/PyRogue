@@ -7,7 +7,7 @@ player = Actor(
     color=(255, 255, 255), 
     name="Player", 
     ai_class=HostileEnemy,
-    stats=EntityStats(100, 2, 5)
+    stats=EntityStats(10, 2, 5)
 )
 
 rat = Actor(
@@ -15,7 +15,7 @@ rat = Actor(
     color=(0, 127, 0),
     name="Rat", 
     ai_class=HostileEnemy,
-    stats=EntityStats(20, 0, 2)
+    stats=EntityStats(20, 0, 3)
 )
 
 spider = Actor(

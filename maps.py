@@ -64,7 +64,12 @@ class MainMap:
             default=tile_type.fog_of_war,
         )
 
+        entities_sorted = sorted(
+            self.entities, key=lambda x: x.r_order.value
+        )
         
-        for entity in self.entities:
+        for entity in entities_sorted:
             if self.visible[entity.x, entity.y]:
-                console.print(entity.x, entity.y, entity.char, fg=entity.color)
+                console.print(
+                    x=entity.x, y=entity.y, string=entity.char, fg=entity.color
+                )

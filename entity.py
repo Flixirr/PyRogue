@@ -3,6 +3,8 @@ from __future__ import annotations
 import copy
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING
 
+from rendering_help import Order
+
 if TYPE_CHECKING:
     from components.ai import BaseAI
     from components.stats import EntityStats
@@ -25,7 +27,8 @@ class Entity:
         char: str = " ", 
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
-        block_movement: bool = False
+        block_movement: bool = False,
+        r_order: Order = Order.CORPSE
     ):
         self.x = x
         self.y = y
@@ -33,6 +36,7 @@ class Entity:
         self.color = color
         self.name = name
         self.block_movement = block_movement
+        self.r_order = r_order
         if g_map:
             self.g_map = g_map
             g_map.entities.add(self)
@@ -76,7 +80,8 @@ class Actor(Entity):
             char=char,
             color=color,
             name=name,
-            block_movement=True
+            block_movement=True,
+            r_order=Order.ACTOR
         )
 
         self.ai: Optional[BaseAI] = ai_class(self)

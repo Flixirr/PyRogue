@@ -7,18 +7,19 @@ from tcod.console import Console
 from tcod.map import compute_fov
 
 
-from input_handler import EventHandler
+from input_handler import MainGameEventHandler
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from entity import Actor
     from maps import MainMap
+    from input_handler import EventHandler
 
 class Engine:
     g_map: MainMap
 
 
-    def __init__(self, player: Entity):
-        self.event_handler: EventHandler = EventHandler(self)
+    def __init__(self, player: Actor):
+        self.event_handler: EventHandler = MainGameEventHandler(self)
         self.player = player
 
     def handle_enemy_turns(self) -> None:
@@ -39,6 +40,8 @@ class Engine:
         """Method for rendering objects in TCOD terminal"""
         self.g_map.render(console)
 
+        console.print(x=1, y=47,
+                        string=f"HP: {self.player.stats.hp}/{self.player.stats.max_hp}")
 
         context.present(console)
 
